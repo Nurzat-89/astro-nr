@@ -40,8 +40,24 @@ public sealed class EndfMaterial
 
     public int MassNumber => (int)Math.Round(ZA) % 1000;
 
-    public string Name =>
-        Description is { SymbolAndMass.Length: > 0 } d ? d.SymbolAndMass.Trim() : $"MAT {Mat}";
+    /// <summary>Element symbol, e.g. "U"; null when Z is unknown.</summary>
+    public string? Symbol => ZA >= 1 ? ChemicalElements.GetSymbol(Z) : null;
+
+    /// <summary>
+    /// Material name, e.g. "92-U-235": ZSYMAM without blanks when present, otherwise built from ZA.
+    /// </summary>
+    public string Name
+    {
+        get
+        {
+            if (Description is { SymbolAndMass.Length: > 0 } d)
+                return d.SymbolAndMass.Replace(" ", string.Empty, StringComparison.Ordinal);
+
+            return Symbol is { } symbol
+                ? $"{Z}-{symbol}-{(MassNumber == 0 ? "nat" : MassNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))}"
+                : $"MAT {Mat}";
+        }
+    }
 
     public CrossSection? GetCrossSection(int mt) => CrossSections.FirstOrDefault(x => x.MT == mt);
 

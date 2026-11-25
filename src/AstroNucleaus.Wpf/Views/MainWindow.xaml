@@ -4,206 +4,104 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:AstroNucleaus.Wpf.ViewModels"
-        xmlns:controls="clr-namespace:AstroNucleaus.Wpf.Controls"
+        xmlns:views="clr-namespace:AstroNucleaus.Wpf.Views"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
-        Title="{Binding Title}" Height="760" Width="1200" MinHeight="480" MinWidth="800"
+        d:DataContext="{d:DesignInstance Type=vm:ShellViewModel}"
+        Title="{Binding Title}" Icon="{StaticResource AppLogo}"
+        Width="1500" Height="920" MinWidth="1100" MinHeight="640"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource WindowBackgroundBrush}"
+        Foreground="{StaticResource TextPrimaryBrush}"
+        FontFamily="Segoe UI" FontSize="13"
         Loaded="OnLoaded">
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="196" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="DimGray" />
-            <Setter Property="Margin" Value="0,2,12,2" />
-        </Style>
-        <Style x:Key="FieldValue" TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,2" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-        </Style>
-    </Window.Resources>
-
-    <DockPanel>
-        <!-- Toolbar -->
-        <Border DockPanel.Dock="Top" Padding="8" BorderBrush="#DDD" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Source" VerticalAlignment="Center" Margin="0,0,6,0" />
-                <ComboBox Width="190" ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}"
-                          DisplayMemberPath="Name" />
-                <TextBlock Text="Library" VerticalAlignment="Center" Margin="16,0,6,0" />
-                <ComboBox Width="180" ItemsSource="{Binding Libraries}" SelectedItem="{Binding SelectedLibrary}" />
-                <TextBlock Text="Sub-library" VerticalAlignment="Center" Margin="16,0,6,0" />
-                <ComboBox Width="130" ItemsSource="{Binding Sublibraries}" SelectedItem="{Binding SelectedSublibrary}" />
-                <Button Content="Refresh" Margin="8,0,0,0" Padding="10,2" Command="{Binding LoadLibrariesCommand}" />
-                <Button Content="Open local file…" Margin="24,0,0,0" Padding="10,2" Command="{Binding OpenFileCommand}" />
+        <!-- Sidebar -->
+        <DockPanel Grid.Row="0" Grid.Column="0" Margin="10,12,10,10">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,0,18">
+                <Image Source="{StaticResource AppLogo}" Width="28" Height="28" />
+                <TextBlock Text="AstroNucleaus" FontSize="16" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
             </StackPanel>
-        </Border>
+            <TextBlock DockPanel.Dock="Bottom" Margin="14,0,0,0" Foreground="{StaticResource TextMutedBrush}" FontSize="12"
+                       Text="{Binding Version, StringFormat=Version {0}}" />
+            <StackPanel>
+                <RadioButton Style="{StaticResource NavButton}" Tag="&#xE80A;" Content="ENDF Browser"
+                             IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=Browser}" />
+                <RadioButton Style="{StaticResource NavButton}" Tag="&#xE8F1;" Content="Libraries"
+                             IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=Libraries}" />
+                <RadioButton Style="{StaticResource NavButton}" Tag="&#xE7B8;" Content="Materials"
+                             IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=Materials}" />
+                <RadioButton Style="{StaticResource NavButton}" Tag="&#xE713;" Content="Settings"
+                             IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=Settings}" />
+                <RadioButton Style="{StaticResource NavButton}" Tag="&#xE946;" Content="About"
+                             IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=About}" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Pages -->
+        <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,12,0">
+            <views:EndfBrowserView DataContext="{Binding Browser}"
+                                   Visibility="{Binding DataContext.SelectedPage, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Visibility}, ConverterParameter=Browser}" />
+            <views:LibrariesView DataContext="{Binding Browser}"
+                                 Visibility="{Binding DataContext.SelectedPage, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Visibility}, ConverterParameter=Libraries}" />
+            <views:MaterialsView Visibility="{Binding SelectedPage, Converter={StaticResource Visibility}, ConverterParameter=Materials}" />
+            <views:SettingsView DataContext="{Binding Settings}"
+                                Visibility="{Binding DataContext.SelectedPage, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Visibility}, ConverterParameter=Settings}" />
+            <views:AboutView Visibility="{Binding SelectedPage, Converter={StaticResource Visibility}, ConverterParameter=About}" />
+        </Grid>
 
         <!-- Status bar -->
-        <Border DockPanel.Dock="Bottom" Padding="8,4" BorderBrush="#DDD" BorderThickness="0,1,0,0">
+        <Border Grid.Row="1" Grid.ColumnSpan="2" Background="{StaticResource CardBackgroundBrush}"
+                BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="18,8"
+                DataContext="{Binding Browser}">
             <DockPanel>
-                <Button DockPanel.Dock="Right" Content="Cancel" Padding="10,0" Margin="8,0,0,0"
-                        Command="{Binding CancelCommand}"
-                        Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
-                <ProgressBar DockPanel.Dock="Right" Width="200" Height="14"
-                             Value="{Binding Progress}" IsIndeterminate="{Binding IsProgressIndeterminate}"
-                             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
-                <TextBlock Text="{Binding Status}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <!-- Busy: progress and cancel -->
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsBusy, Converter={StaticResource Visibility}}">
+                        <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Margin="0,0,10,0" MaxWidth="420"
+                                   TextTrimming="CharacterEllipsis" />
+                        <ProgressBar Width="160" Height="6" Value="{Binding Progress}" IsIndeterminate="{Binding IsProgressIndeterminate}" />
+                        <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="11" Margin="10,0,0,0"
+                                Content="&#xE711;" ToolTip="Cancel" Command="{Binding CancelCommand}" />
+                    </StackPanel>
+                    <!-- Idle: status with icon -->
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsBusy, Converter={StaticResource InverseVisibility}}">
+                        <TextBlock Margin="0,0,8,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+                                    <Setter Property="Text" Value="&#xE930;" />
+                                    <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasError}" Value="True">
+                                            <Setter Property="Text" Value="&#xE7BA;" />
+                                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding Status}" VerticalAlignment="Center" MaxWidth="560" TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding Status}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding PointCountText, Converter={StaticResource Visibility}}">
+                        <Border Style="{StaticResource VerticalDivider}" Margin="16,0" />
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE9D2;" Margin="0,0,8,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Text="{Binding PointCountText}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" Margin="0,0,10,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                    <TextBlock Text="{Binding LocationText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
             </DockPanel>
         </Border>
-
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300" MinWidth="200" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <!-- Remote evaluations -->
-            <DockPanel Grid.Column="0" Margin="8">
-                <TextBlock DockPanel.Dock="Top" Text="Evaluations" FontWeight="SemiBold" Margin="0,0,0,4" />
-                <Grid DockPanel.Dock="Top" Margin="0,0,0,6">
-                    <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Padding="2" />
-                    <TextBlock Text="Filter, e.g. Fe-56" Foreground="Gray" Margin="6,0" VerticalAlignment="Center"
-                               IsHitTestVisible="False">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding FilterText}" Value="">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Grid>
-                <Button DockPanel.Dock="Bottom" Content="Download and parse" Margin="0,6,0,0" Padding="6,4"
-                        Command="{Binding DownloadCommand}" />
-                <ListBox ItemsSource="{Binding FilesView}" SelectedItem="{Binding SelectedFile}"
-                         VirtualizingPanel.IsVirtualizing="True" MouseDoubleClick="OnFileDoubleClick">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding DisplayName}" Width="100" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding FileName}" Foreground="Gray" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </DockPanel>
-
-            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" Background="#EEE" />
-
-            <!-- Parsed data -->
-            <DockPanel Grid.Column="2" Margin="8">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
-                    <TextBlock Text="Material" VerticalAlignment="Center" Margin="0,0,6,0" />
-                    <ComboBox Width="260" ItemsSource="{Binding Materials}" SelectedItem="{Binding SelectedMaterial}" />
-                    <TextBlock Text="{Binding LoadedSource}" Foreground="Gray" VerticalAlignment="Center" Margin="12,0,0,0"
-                               TextTrimming="CharacterEllipsis" />
-                </StackPanel>
-
-                <TabControl>
-                    <TabItem Header="Cross sections">
-                        <Grid Margin="4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="340" MinWidth="200" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <DataGrid Grid.Column="0" ItemsSource="{Binding SelectedMaterial.CrossSections}"
-                                      SelectedItem="{Binding SelectedCrossSection}"
-                                      AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
-                                      SelectionMode="Single" GridLinesVisibility="None">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="MT" Binding="{Binding MT}" />
-                                    <DataGridTextColumn Header="Reaction" Binding="{Binding ReactionName}" Width="*" />
-                                    <DataGridTextColumn Header="Q (eV)" Binding="{Binding ReactionQValue, StringFormat=G5}" />
-                                    <DataGridTextColumn Header="Points" Binding="{Binding Data.Count}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" Background="#EEE" />
-                            <DockPanel Grid.Column="2" Margin="4,0,0,0">
-                                <TextBlock DockPanel.Dock="Top" Margin="0,0,0,4" FontWeight="SemiBold">
-                                    <Run Text="{Binding SelectedMaterial.Name, Mode=OneWay}" />
-                                    <Run Text="{Binding SelectedCrossSection.ReactionName, Mode=OneWay}" />
-                                    <Run Text="  threshold:" Foreground="Gray" FontWeight="Normal" />
-                                    <Run Text="{Binding SelectedCrossSection.ThresholdEnergy, Mode=OneWay, StringFormat={}{0:G4} eV}"
-                                         Foreground="Gray" FontWeight="Normal" />
-                                </TextBlock>
-                                <controls:CrossSectionPlot Function="{Binding SelectedCrossSection.Data}" />
-                            </DockPanel>
-                        </Grid>
-                    </TabItem>
-
-                    <TabItem Header="General information">
-                        <DockPanel Margin="8" DataContext="{Binding SelectedMaterial}">
-                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="Material" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource FieldValue}" Text="{Binding Name}" />
-                                <TextBlock Grid.Row="0" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="MAT" />
-                                <TextBlock Grid.Row="0" Grid.Column="3" Style="{StaticResource FieldValue}" Text="{Binding Mat}" />
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="ZA" />
-                                <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource FieldValue}" Text="{Binding ZA}" />
-                                <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="AWR" />
-                                <TextBlock Grid.Row="1" Grid.Column="3" Style="{StaticResource FieldValue}" Text="{Binding AtomicWeightRatio, StringFormat=G8}" />
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="Library" />
-                                <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource FieldValue}">
-                                    <Run Text="{Binding Description.LibraryName, Mode=OneWay}" />
-                                    <Run Text="{Binding Description.LibraryVersion, Mode=OneWay, StringFormat=v{0}}" />
-                                </TextBlock>
-                                <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="Sub-library" />
-                                <TextBlock Grid.Row="2" Grid.Column="3" Style="{StaticResource FieldValue}" Text="{Binding Description.SubLibraryName}" />
-
-                                <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="Laboratory" />
-                                <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource FieldValue}" Text="{Binding Description.Laboratory}" />
-                                <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="Evaluated" />
-                                <TextBlock Grid.Row="3" Grid.Column="3" Style="{StaticResource FieldValue}" Text="{Binding Description.EvaluationDate}" />
-
-                                <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="Authors" />
-                                <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource FieldValue}" Text="{Binding Description.Authors}" />
-                                <TextBlock Grid.Row="4" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="Max energy (eV)" />
-                                <TextBlock Grid.Row="4" Grid.Column="3" Style="{StaticResource FieldValue}" Text="{Binding Description.MaxEnergy, StringFormat=G4}" />
-
-                                <TextBlock Grid.Row="5" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="Temperature (K)" />
-                                <TextBlock Grid.Row="5" Grid.Column="1" Style="{StaticResource FieldValue}" Text="{Binding Description.Temperature}" />
-                                <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="Fissionable" />
-                                <TextBlock Grid.Row="5" Grid.Column="3" Style="{StaticResource FieldValue}" Text="{Binding Description.IsFissionable}" />
-                            </Grid>
-                            <TextBox Text="{Binding Description.CommentText, Mode=OneWay}" IsReadOnly="True"
-                                     FontFamily="Consolas" FontSize="12"
-                                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
-                        </DockPanel>
-                    </TabItem>
-
-                    <TabItem Header="Sections">
-                        <DataGrid Margin="4" ItemsSource="{Binding SelectedMaterial.Sections}" AutoGenerateColumns="False"
-                                  IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="None">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="MF" Binding="{Binding MF}" />
-                                <DataGridTextColumn Header="MT" Binding="{Binding MT}" />
-                                <DataGridTextColumn Header="Lines" Binding="{Binding LineCount}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </TabItem>
-
-                    <TabItem Header="Warnings">
-                        <ListBox Margin="4" ItemsSource="{Binding Warnings}" />
-                    </TabItem>
-                </TabControl>
-            </DockPanel>
-        </Grid>
-    </DockPanel>
+    </Grid>
 </Window>

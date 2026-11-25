@@ -1,7 +1,18 @@
 <Application x:Class="AstroNucleaus.Wpf.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:AstroNucleaus.Wpf.Converters"
+             ThemeMode="Light">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/AppTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
 
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <converters:EnumToBooleanConverter x:Key="EnumToBoolean" />
+            <converters:VisibilityConverter x:Key="Visibility" />
+            <converters:VisibilityConverter x:Key="InverseVisibility" Invert="True" />
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,0 +1,43 @@
+<UserControl x:Class="AstroNucleaus.Wpf.Views.MaterialsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:AstroNucleaus.Wpf.ViewModels"
+             mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:ShellViewModel}">
+    <UserControl.Resources>
+        <ResourceDictionary Source="/AstroNucleaus.Wpf;component/Themes/Tables.xaml" />
+    </UserControl.Resources>
+    <DockPanel Margin="8,20,8,12">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+            <TextBlock Style="{StaticResource PageTitle}" Text="Materials" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,4,0,0" FontSize="14"
+                       Text="Materials of the loaded ENDF file. Double-click a material to open it in the ENDF Browser." />
+        </StackPanel>
+
+        <Border Style="{StaticResource Card}" Padding="6">
+            <Grid>
+                <DataGrid x:Name="Grid" Style="{StaticResource TableGrid}" ItemsSource="{Binding Browser.Materials}"
+                          SelectedItem="{Binding Browser.SelectedMaterial}" RowHeight="30" MouseDoubleClick="OnRowDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="MAT" Binding="{Binding Mat}" Width="70" />
+                        <DataGridTextColumn Header="Material" Binding="{Binding Name}" Width="160" />
+                        <DataGridTextColumn Header="ZA" Binding="{Binding ZA}" Width="90" />
+                        <DataGridTextColumn Header="AWR" Binding="{Binding AtomicWeightRatio, StringFormat=G8}" Width="110" />
+                        <DataGridTextColumn Header="Library" Binding="{Binding Description.LibraryName}" Width="110" />
+                        <DataGridTextColumn Header="Sub-library" Binding="{Binding Description.SubLibraryName}" Width="170" />
+                        <DataGridTextColumn Header="Cross sections" Binding="{Binding CrossSections.Count}" Width="120" />
+                        <DataGridTextColumn Header="Sections" Binding="{Binding Sections.Count}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding Browser.Materials.Count, Converter={StaticResource InverseVisibility}}">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7B8;" FontSize="32" HorizontalAlignment="Center"
+                               Foreground="{StaticResource TextMutedBrush}" />
+                    <TextBlock Text="No file loaded yet." Margin="0,10,0,12" Style="{StaticResource SecondaryText}" HorizontalAlignment="Center" />
+                    <Button Style="{StaticResource PrimaryButton}" Content="Go to ENDF Browser" Command="{Binding ShowBrowserCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DockPanel>
+</UserControl>

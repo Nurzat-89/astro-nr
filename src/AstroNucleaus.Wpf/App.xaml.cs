@@ -22,7 +22,9 @@ public partial class App : System.Windows.Application
                 services.AddInfrastructure();
 
                 services.AddSingleton<IFileDialogService, FileDialogService>();
-                services.AddSingleton<MainViewModel>();
+                services.AddSingleton<EndfBrowserViewModel>();
+                services.AddSingleton<SettingsViewModel>();
+                services.AddSingleton<ShellViewModel>();
                 services.AddSingleton<MainWindow>();
             })
             .Build();
