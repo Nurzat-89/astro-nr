@@ -26,4 +26,16 @@ public static class ChemicalElements
 
     /// <summary>Element symbol for <paramref name="z"/>, or null when Z is out of range.</summary>
     public static string? GetSymbol(int z) => z >= 0 && z < Symbols.Length ? Symbols[z] : null;
+
+    /// <summary>Atomic number of an element symbol (case-insensitive), or null if unknown. "n" is 0.</summary>
+    public static int? GetAtomicNumber(string symbol)
+    {
+        for (var z = 0; z < Symbols.Length; z++)
+        {
+            if (string.Equals(Symbols[z], symbol, StringComparison.OrdinalIgnoreCase))
+                return z;
+        }
+
+        return null;
+    }
 }

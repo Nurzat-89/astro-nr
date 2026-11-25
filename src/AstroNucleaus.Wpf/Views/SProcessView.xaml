@@ -1,0 +1,229 @@
+<UserControl x:Class="AstroNucleaus.Wpf.Views.SProcessView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:AstroNucleaus.Wpf.ViewModels"
+             xmlns:controls="clr-namespace:AstroNucleaus.Wpf.Controls"
+             mc:Ignorable="d" d:DesignWidth="1300" d:DesignHeight="850"
+             d:DataContext="{d:DesignInstance Type=vm:SProcessViewModel}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/AstroNucleaus.Wpf;component/Themes/Tables.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="InputLabel" TargetType="TextBlock">
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,12,0,6" />
+            </Style>
+            <Style x:Key="Hint" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Margin" Value="0,4,0,0" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+            <Style x:Key="StatValue" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,4,0,0" />
+            </Style>
+            <Style x:Key="StatLabel" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                <Setter Property="FontSize" Value="12" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <DockPanel Margin="8,20,8,12">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+            <TextBlock Style="{StaticResource PageTitle}" Text="s-Process in massive stars" />
+            <TextBlock Style="{StaticResource SecondaryText}" Margin="0,4,0,0" FontSize="14"
+                       Text="Weak s-process in the convective He-burning core: one-zone neutron-capture network from Fe, neutrons from ²²Ne(α,n)²⁵Mg." />
+        </StackPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" MinWidth="260" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Inputs -->
+            <Border Style="{StaticResource Card}" Padding="18,14">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
+                        <Button Style="{StaticResource PrimaryButton}" Tag="&#xE768;" Content="Run calculation" Command="{Binding RunCommand}" />
+                        <Grid Margin="0,10,0,0" Visibility="{Binding IsBusy, Converter={StaticResource Visibility}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ProgressBar Height="6" Value="{Binding Progress}" IsIndeterminate="{Binding IsProgressIndeterminate}" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="11"
+                                    Content="&#xE711;" ToolTip="Cancel" Command="{Binding CancelCommand}" />
+                        </Grid>
+                        <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Margin="0,8,0,0" FontSize="12">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasError}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE9E9;" Margin="0,0,10,0" />
+                                <TextBlock Style="{StaticResource CardTitle}" Text="Star" />
+                            </StackPanel>
+
+                            <TextBlock Style="{StaticResource InputLabel}" Text="Stellar mass (M⊙)" />
+                            <DockPanel>
+                                <TextBox DockPanel.Dock="Right" Width="72" Margin="10,0,0,0"
+                                         Text="{Binding StellarMass, UpdateSourceTrigger=LostFocus, StringFormat=0.#}" />
+                                <Slider Minimum="8" Maximum="60" Value="{Binding StellarMass}" SmallChange="1" LargeChange="5"
+                                        IsSnapToTickEnabled="True" TickFrequency="0.5" VerticalAlignment="Center" />
+                            </DockPanel>
+
+                            <TextBlock Style="{StaticResource InputLabel}" Text="Average core temperature (GK)" />
+                            <DockPanel>
+                                <TextBox DockPanel.Dock="Right" Width="72" Margin="10,0,0,0"
+                                         Text="{Binding TemperatureGK, UpdateSourceTrigger=LostFocus, StringFormat=0.###}" />
+                                <Slider Minimum="0.15" Maximum="0.45" Value="{Binding TemperatureGK}" SmallChange="0.005" LargeChange="0.05"
+                                        IsSnapToTickEnabled="True" TickFrequency="0.005" VerticalAlignment="Center" />
+                            </DockPanel>
+                            <TextBlock Style="{StaticResource Hint}" Text="{Binding KTText}" />
+
+                            <Expander Header="Advanced" Margin="0,16,0,0">
+                                <StackPanel Margin="0,4,0,0">
+                                    <TextBlock Style="{StaticResource InputLabel}" Text="Metallicity Z" />
+                                    <TextBox Text="{Binding Metallicity, UpdateSourceTrigger=LostFocus}" />
+                                    <TextBlock Style="{StaticResource Hint}" Text="Solar ≈ 0.014. Sets ²²Ne (≈ Z) and the ⁵⁶Fe seed." />
+
+                                    <TextBlock Style="{StaticResource InputLabel}" Text="Core density (g/cm³)" />
+                                    <TextBox Text="{Binding DensityText, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBlock Style="{StaticResource Hint}" Text="{Binding DensityPlaceholder}" />
+
+                                    <TextBlock Style="{StaticResource InputLabel}" Text="Core He-burning time (Myr)" />
+                                    <TextBox Text="{Binding DurationText, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBlock Style="{StaticResource Hint}" Text="{Binding DurationPlaceholder}" />
+
+                                    <TextBlock Style="{StaticResource InputLabel}" Text="He mass fraction at the onset" />
+                                    <TextBox Text="{Binding HeliumAtOnset, UpdateSourceTrigger=LostFocus}" />
+                                    <TextBlock Style="{StaticResource Hint}" Text="²²Ne(α,n) works near the end of He burning; the run starts when X(He) falls to this value." />
+
+                                    <TextBlock Style="{StaticResource InputLabel}" Text="¹²C share of the He ash" />
+                                    <TextBox Text="{Binding CarbonFraction, UpdateSourceTrigger=LostFocus}" />
+
+                                    <TextBlock Style="{StaticResource InputLabel}" Text="Network up to Z" />
+                                    <ComboBox ItemsSource="{Binding MaxZOptions}" SelectedItem="{Binding MaxZ}" />
+                                    <TextBlock Style="{StaticResource Hint}" Text="Leave empty fields for the model values." />
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- Results -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <UniformGrid Rows="1" Columns="4">
+                    <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource StatLabel}" Text="Neutron exposure τ" />
+                            <TextBlock Style="{StaticResource StatValue}" Text="{Binding ExposureText}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource StatLabel}" Text="Mean neutron density" />
+                            <TextBlock Style="{StaticResource StatValue}" Text="{Binding NeutronDensityText}" />
+                            <TextBlock Style="{StaticResource StatLabel}" Text="{Binding PeakDensityText}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource StatLabel}" Text="²²Ne burned" />
+                            <TextBlock Style="{StaticResource StatValue}" Text="{Binding Ne22Text}" />
+                            <TextBlock Style="{StaticResource StatLabel}" Text="all burned: exposure set by Z and poisons" TextWrapping="Wrap"
+                                       Visibility="{Binding AllNe22Burned, Converter={StaticResource Visibility}}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Padding="16,12">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource StatLabel}" Text="⁵⁶Fe destroyed" />
+                            <TextBlock Style="{StaticResource StatValue}" Text="{Binding Fe56Text}" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <TabControl Grid.Row="1" Style="{StaticResource PageTabControl}" Margin="0,12,0,0">
+                    <TabItem Header="Abundances" Tag="&#xE9D2;">
+                        <Border Style="{StaticResource Card}" Padding="16,12,16,8">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <CheckBox Content="After decay of short-lived nuclei" IsChecked="{Binding ShowDecayed}" VerticalAlignment="Center" />
+                                        <Button Style="{StaticResource IconButton}" Content="&#xE896;" ToolTip="Export abundances as CSV"
+                                                Margin="14,0,0,0" Command="{Binding ExportCsvCommand}" />
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource CardTitle}" Text="Abundance distribution" VerticalAlignment="Center" />
+                                </DockPanel>
+                                <TextBlock DockPanel.Dock="Bottom" Text="{Binding ConditionsText}" Style="{StaticResource Hint}" Margin="0,8,0,0" />
+                                <controls:AbundancePlot Abundances="{Binding Abundances}" ShowDecayed="{Binding ShowDecayed}" />
+                            </DockPanel>
+                        </Border>
+                    </TabItem>
+
+                    <TabItem Header="Table" Tag="&#xE80A;">
+                        <Border Style="{StaticResource Card}" Padding="6">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,4,0,6">
+                                    <CheckBox Content="Stable and long-lived only" IsChecked="{Binding StableOnly}" />
+                                </StackPanel>
+                                <DataGrid Style="{StaticResource TableGrid}" ItemsSource="{Binding TableRows}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nuclide" Binding="{Binding Nuclide}" Width="80" />
+                                        <DataGridTextColumn Header="Z" Binding="{Binding Nuclide.Z}" Width="45" />
+                                        <DataGridTextColumn Header="A" Binding="{Binding Nuclide.A}" Width="45" />
+                                        <DataGridTextColumn Header="MACS (b)" Binding="{Binding CaptureBarns, StringFormat=0.###E+00}" Width="95" />
+                                        <DataGridTextColumn Header="X initial" Binding="{Binding InitialMassFraction, StringFormat=0.###E+00}" Width="95" />
+                                        <DataGridTextColumn Header="X final" Binding="{Binding FinalMassFraction, StringFormat=0.###E+00}" Width="95" />
+                                        <DataGridTextColumn Header="X decayed" Binding="{Binding DecayedMassFraction, StringFormat=0.###E+00}" Width="95" />
+                                        <DataGridTextColumn Header="Y/Y₀(⁵⁶Fe)" Binding="{Binding DecayedRelativeToInitialFe56, StringFormat=0.###E+00}" Width="*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </Border>
+                    </TabItem>
+
+                    <TabItem Header="Model &amp; data" Tag="&#xE946;">
+                        <Border Style="{StaticResource Card}" Padding="20,16">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource CardTitle}" Text="Model" />
+                                    <TextBlock TextWrapping="Wrap" Margin="0,8,0,0" LineHeight="21"><Run Text="One-zone convective He core at the given average temperature. The run covers the neutron-producing end of core He burning, from X(He) at the onset (default 0.1) to 0; helium is consumed linearly at the average rate of the whole burning time, its ash is ¹²C/¹⁶O. ²²Ne (≈ Z by mass, from CNO) burns through ²²Ne(α,n)²⁵Mg and ²²Ne(α,γ)²⁶Mg."/><LineBreak/><LineBreak/><Run Text="The neutron density follows from equilibrium between production and capture by the network nuclei and the poisons ¹²C, ¹⁶O, ²⁰,²²Ne, ²⁴⁻²⁶Mg. The network starts from ⁵⁶Fe (X ≈ 0.089·Z) and follows (n,γ) and decays up to the chosen Z with an implicit solver."/><LineBreak/><LineBreak/><Run Text="Stellar mass sets the core density (1500·(M/15)^-0.8 g/cm³) and the He-burning time (1.9·(M/15)^-1.6 Myr). These are rough scalings, not fits to a model grid — enter values from your own stellar model under Advanced for quantitative work. Above ≈ 0.25 GK all ²²Ne burns within the phase, so the total exposure then depends mainly on Z and the poisons, and mass mostly changes the neutron density."/><LineBreak/><LineBreak/><Run Text="Not included: temperature-dependent (stellar) decay rates, isomers, ¹⁷O(α,n) recycling of neutrons captured by ¹⁶O, convective-shell C burning, and ²²Ne burned before the onset." /></TextBlock>
+
+                                    <TextBlock Style="{StaticResource CardTitle}" Text="Data" Margin="0,20,0,0" />
+                                    <TextBlock TextWrapping="Wrap" Margin="0,8,0,0" LineHeight="21"><Run Text="Maxwellian-averaged (n,γ) cross sections: B. Pritychenko, S. F. Mughabghab, Nucl. Data Sheets 113, 3120 (2012), from ENDF/B-VII.1 and EAF-2010 (NNDC), interpolated log-log in kT. Decay: ENDF/B-VIII.0 decay sub-library (NNDC). ²²Ne+α rates: Longland et al., Phys. Rev. C 85, 065809 (2012), from JINA REACLIB. Initial composition scaled from Asplund et al., ARA&amp;A 47, 481 (2009)."/><LineBreak/><LineBreak/><Run Text="{Binding DataText, Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" /></TextBlock>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</UserControl>

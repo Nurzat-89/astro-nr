@@ -22,6 +22,15 @@ public sealed class EndfOptions
     public Uri IaeaBaseAddress { get; set; } = new("https://www-nds.iaea.org/public/download-endf/");
 
     /// <summary>
+    /// NNDC tables of Maxwellian-averaged (n,γ) cross sections at 60 temperatures, from ENDF/B-VII.1 and EAF-2010
+    /// (B. Pritychenko, S. F. Mughabghab, Nucl. Data Sheets 113, 3120 (2012)).
+    /// </summary>
+    public Uri MacsArchiveAddress { get; set; } = new("https://www.nndc.bnl.gov/astro/ENDFB71-EAF2010.zip");
+
+    /// <summary>ENDF/B-VIII.0 radioactive decay sub-library (half-lives and decay modes).</summary>
+    public Uri DecayArchiveAddress { get; set; } = new("https://www.nndc.bnl.gov/endf-b8.0/zips/ENDF-B-VIII.0_decay.zip");
+
+    /// <summary>
     /// NNDC libraries. Each sub-library is one zip archive on the server; single evaluations are
     /// read from it with HTTP range requests.
     /// </summary>

@@ -1,6 +1,7 @@
 using System.Text;
 using AstroNucleaus.Application.Endf;
 using AstroNucleaus.Domain.Endf;
+using AstroNucleaus.Domain.SProcess;
 
 namespace AstroNucleaus.Infrastructure.Endf.Parsing;
 
@@ -110,6 +111,7 @@ public sealed class EndfParser : IEndfParser
         private readonly List<CrossSection> _crossSections = [];
         private readonly List<EndfSectionInfo> _sections = [];
         private EndfMaterialDescription? _description;
+        private RadioactiveDecay? _decay;
         private double? _za;
         private double? _awr;
 
@@ -138,6 +140,9 @@ public sealed class EndfParser : IEndfParser
                     case (3, _):
                         _crossSections.Add(ReadCrossSection(reader, mt));
                         break;
+                    case (8, 457):
+                        _decay = ReadRadioactiveDecay(reader);
+                        break;
                     default:
                         // Remember ZA/AWR from the HEAD record of any section.
                         SetZaAwr(reader.ReadCont());
@@ -151,7 +156,35 @@ public sealed class EndfParser : IEndfParser
         }
 
         public EndfMaterial Build() =>
-            new(Mat, _za ?? 0, _awr ?? 0, _description, _crossSections, _sections);
+            new(Mat, _za ?? 0, _awr ?? 0, _description, _crossSections, _sections, _decay);
+
+        private RadioactiveDecay ReadRadioactiveDecay(EndfRecordReader reader)
+        {
+            // HEAD: ZA, AWR, LIS, LISO, NST, NSP
+            var head = reader.ReadCont();
+            SetZaAwr(head);
+
+            // LIST: T½, ΔT½, 0, 0, NC, 0 / average decay energies
+            var (halfLifeRecord, _) = reader.ReadList();
+
+            // LIST: SPI, PAR, 0, 0, 6·NDK, NDK / RTYP, RFS, Q, ΔQ, BR, ΔBR for each decay mode
+            var (_, modes) = reader.ReadList();
+
+            var halfLife = halfLifeRecord.C1;
+            if (head.N1 == 1 || halfLife <= 0)
+                return RadioactiveDecay.Stable;
+
+            var branches = new List<DecayBranch>();
+            for (var k = 0; k + 5 < modes.Length; k += 6)
+            {
+                var rtyp = modes[k];
+                var fraction = modes[k + 4];
+                if (rtyp > 0 && fraction > 0)
+                    branches.Add(RadioactiveDecay.BranchFromRtyp(rtyp, fraction));
+            }
+
+            return new RadioactiveDecay(halfLife, branches);
+        }
 
         private void SetZaAwr(ContRecord head)
         {

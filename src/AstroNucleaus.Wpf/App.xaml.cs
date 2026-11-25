@@ -23,6 +23,7 @@ public partial class App : System.Windows.Application
 
                 services.AddSingleton<IFileDialogService, FileDialogService>();
                 services.AddSingleton<EndfBrowserViewModel>();
+                services.AddSingleton<SProcessViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<ShellViewModel>();
                 services.AddSingleton<MainWindow>();

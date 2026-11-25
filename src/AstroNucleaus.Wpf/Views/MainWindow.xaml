@@ -35,6 +35,8 @@
             <StackPanel>
                 <RadioButton Style="{StaticResource NavButton}" Tag="&#xE80A;" Content="ENDF Browser"
                              IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=Browser}" />
+                <RadioButton Style="{StaticResource NavButton}" Tag="&#xE9D9;" Content="s-Process"
+                             IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=SProcess}" />
                 <RadioButton Style="{StaticResource NavButton}" Tag="&#xE8F1;" Content="Libraries"
                              IsChecked="{Binding SelectedPage, Converter={StaticResource EnumToBoolean}, ConverterParameter=Libraries}" />
                 <RadioButton Style="{StaticResource NavButton}" Tag="&#xE7B8;" Content="Materials"
@@ -50,6 +52,8 @@
         <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,12,0">
             <views:EndfBrowserView DataContext="{Binding Browser}"
                                    Visibility="{Binding DataContext.SelectedPage, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Visibility}, ConverterParameter=Browser}" />
+            <views:SProcessView DataContext="{Binding SProcess}"
+                                Visibility="{Binding DataContext.SelectedPage, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Visibility}, ConverterParameter=SProcess}" />
             <views:LibrariesView DataContext="{Binding Browser}"
                                  Visibility="{Binding DataContext.SelectedPage, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Visibility}, ConverterParameter=Libraries}" />
             <views:MaterialsView Visibility="{Binding SelectedPage, Converter={StaticResource Visibility}, ConverterParameter=Materials}" />

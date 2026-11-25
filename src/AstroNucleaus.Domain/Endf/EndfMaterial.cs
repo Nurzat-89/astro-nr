@@ -11,7 +11,8 @@ public sealed class EndfMaterial
         double atomicWeightRatio,
         EndfMaterialDescription? description,
         IReadOnlyList<CrossSection> crossSections,
-        IReadOnlyList<EndfSectionInfo> sections)
+        IReadOnlyList<EndfSectionInfo> sections,
+        SProcess.RadioactiveDecay? decay = null)
     {
         Mat = mat;
         ZA = za;
@@ -19,7 +20,11 @@ public sealed class EndfMaterial
         Description = description;
         CrossSections = crossSections;
         Sections = sections;
+        Decay = decay;
     }
+
+    /// <summary>Radioactive decay data (MF=8, MT=457), present in decay sub-library files.</summary>
+    public SProcess.RadioactiveDecay? Decay { get; }
 
     /// <summary>MAT: material number.</summary>
     public int Mat { get; }
