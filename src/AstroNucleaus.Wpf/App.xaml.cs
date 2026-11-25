@@ -1,6 +1,7 @@
 using System.Windows;
 using AstroNucleaus.Application;
 using AstroNucleaus.Infrastructure;
+using AstroNucleaus.Wpf.Services;
 using AstroNucleaus.Wpf.ViewModels;
 using AstroNucleaus.Wpf.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ public partial class App : System.Windows.Application
                 services.AddApplication();
                 services.AddInfrastructure();
 
+                services.AddSingleton<IFileDialogService, FileDialogService>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();
             })

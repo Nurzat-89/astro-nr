@@ -12,5 +12,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/AstroNucleaus.Application.Tests/AstroNucleaus.Application.Tests.csproj" />
     <Project Path="tests/AstroNucleaus.Domain.Tests/AstroNucleaus.Domain.Tests.csproj" />
+    <Project Path="tests/AstroNucleaus.Infrastructure.Tests/AstroNucleaus.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>
