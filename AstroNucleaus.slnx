@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/AstroNucleaus.Application/AstroNucleaus.Application.csproj" />
+    <Project Path="src/AstroNucleaus.Domain/AstroNucleaus.Domain.csproj" />
+    <Project Path="src/AstroNucleaus.Infrastructure/AstroNucleaus.Infrastructure.csproj" />
+    <Project Path="src/AstroNucleaus.Wpf/AstroNucleaus.Wpf.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AstroNucleaus.Application.Tests/AstroNucleaus.Application.Tests.csproj" />
+    <Project Path="tests/AstroNucleaus.Domain.Tests/AstroNucleaus.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
