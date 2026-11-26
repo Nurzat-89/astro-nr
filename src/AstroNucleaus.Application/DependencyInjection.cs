@@ -10,6 +10,7 @@ public static class DependencyInjection
     {
         services.AddTransient<EndfLibraryService>();
         services.AddSingleton<SProcessService>();
+        services.AddSingleton<RProcess.RProcessService>();
         return services;
     }
 }

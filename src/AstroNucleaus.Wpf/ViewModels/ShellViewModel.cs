@@ -9,14 +9,17 @@ namespace AstroNucleaus.Wpf.ViewModels;
 /// </summary>
 public partial class ShellViewModel : ObservableObject
 {
-    public ShellViewModel(EndfBrowserViewModel browser, SProcessViewModel sProcess, SettingsViewModel settings)
+    public ShellViewModel(EndfBrowserViewModel browser, SProcessViewModel sProcess, RProcessViewModel rProcess, SettingsViewModel settings)
     {
         Browser = browser;
         SProcess = sProcess;
+        RProcess = rProcess;
         Settings = settings;
     }
 
     public SProcessViewModel SProcess { get; }
+
+    public RProcessViewModel RProcess { get; }
 
     public string Title => "AstroNucleaus — ENDF Browser";
 

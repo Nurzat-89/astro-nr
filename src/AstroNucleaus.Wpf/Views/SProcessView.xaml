@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:AstroNucleaus.Wpf.ViewModels"
              xmlns:controls="clr-namespace:AstroNucleaus.Wpf.Controls"
+             xmlns:views="clr-namespace:AstroNucleaus.Wpf.Views"
              mc:Ignorable="d" d:DesignWidth="1300" d:DesignHeight="850"
              d:DataContext="{d:DesignInstance Type=vm:SProcessViewModel}">
     <UserControl.Resources>
@@ -184,6 +185,12 @@
                                 <TextBlock DockPanel.Dock="Bottom" Text="{Binding ConditionsText}" Style="{StaticResource Hint}" Margin="0,8,0,0" />
                                 <controls:AbundancePlot Abundances="{Binding Abundances}" ShowDecayed="{Binding ShowDecayed}" />
                             </DockPanel>
+                        </Border>
+                    </TabItem>
+
+                    <TabItem Header="Path" Tag="&#xE81E;">
+                        <Border Style="{StaticResource Card}" Padding="14,10">
+                            <views:NuclidePlaybackView DataContext="{Binding Playback}" />
                         </Border>
                     </TabItem>
 

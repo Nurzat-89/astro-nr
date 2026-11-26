@@ -1,10 +1,12 @@
 using AstroNucleaus.Application.Abstractions;
 using AstroNucleaus.Application.Endf;
+using AstroNucleaus.Application.RProcess;
 using AstroNucleaus.Application.SProcess;
 using AstroNucleaus.Infrastructure.Endf;
 using AstroNucleaus.Infrastructure.Endf.Download;
 using AstroNucleaus.Infrastructure.Endf.Parsing;
 using AstroNucleaus.Infrastructure.Services;
+using AstroNucleaus.Infrastructure.RProcess;
 using AstroNucleaus.Infrastructure.SProcess;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -34,6 +36,7 @@ public static class DependencyInjection
         });
         services.AddHttpClient<IEndfFileDownloader, HttpEndfFileDownloader>(ConfigureEndfClient);
         services.AddHttpClient<ISProcessDataSource, NndcSProcessDataSource>(ConfigureEndfClient);
+        services.AddHttpClient<IRProcessDataSource, LocalRProcessDataSource>(ConfigureEndfClient);
 
         // Sources in order of preference: NNDC first, the IAEA server refuses non-browser clients.
         services.AddTransient<IEndfLibraryCatalog>(sp => sp.GetRequiredService<NndcEndfLibraryCatalog>());

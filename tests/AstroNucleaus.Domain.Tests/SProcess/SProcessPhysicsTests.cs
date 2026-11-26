@@ -157,6 +157,23 @@ public class SProcessPhysicsTests
     }
 
     [Fact]
+    public void Calculator_RecordsAbundanceFramesForEveryHistoryEntry()
+    {
+        var result = new SProcessCalculator(ChainData()).Run(Parameters(0.30));
+
+        Assert.Equal(result.History.Count, result.HistoryAbundances.Count);
+        Assert.All(result.HistoryAbundances, frame => Assert.Equal(result.Abundances.Count, frame.Length));
+
+        var fe = result.Abundances.ToList().FindIndex(a => a.Nuclide == StellarCoreModel.Fe56);
+        Assert.Equal(1.0, result.HistoryAbundances[0][fe], 12);                           // start: only the seed
+        Assert.Equal(result.Abundances[fe].RelativeToInitialFe56, result.HistoryAbundances[^1][fe], 12); // end = final
+        // ⁵⁶Fe is only destroyed: it never increases from one frame to the next.
+        for (var k = 1; k < result.HistoryAbundances.Count; k++)
+            Assert.True(result.HistoryAbundances[k][fe] <= result.HistoryAbundances[k - 1][fe] * (1 + 1e-12));
+        Assert.True(result.HistoryAbundances[^1][fe] < 0.9);
+    }
+
+    [Fact]
     public void Calculator_RejectsInvalidParameters()
     {
         var calculator = new SProcessCalculator(ChainData());

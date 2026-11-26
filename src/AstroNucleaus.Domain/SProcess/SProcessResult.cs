@@ -58,4 +58,11 @@ public sealed record SProcessResult(
     int StepsTaken,
     IReadOnlyList<SProcessSnapshot> History,
     IReadOnlyList<NuclideAbundance> Abundances,
-    string DataDescription);
+    string DataDescription)
+{
+    /// <summary>
+    /// Abundances Y/Y₀(⁵⁶Fe) of all network nuclides at each <see cref="History"/> entry
+    /// (frame k, index i ↔ <see cref="Abundances"/>[i]), for animations.
+    /// </summary>
+    public IReadOnlyList<double[]> HistoryAbundances { get; init; } = [];
+}

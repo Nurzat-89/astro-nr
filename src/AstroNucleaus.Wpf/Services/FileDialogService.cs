@@ -17,6 +17,12 @@ public sealed class FileDialogService : IFileDialogService
         return dialog.ShowDialog() == true ? dialog.FileName : null;
     }
 
+    public string? OpenFile(string title, string filter)
+    {
+        var dialog = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true };
+        return dialog.ShowDialog() == true ? dialog.FileName : null;
+    }
+
     public string? SaveFile(string title, string filter, string defaultFileName)
     {
         var invalid = Path.GetInvalidFileNameChars();

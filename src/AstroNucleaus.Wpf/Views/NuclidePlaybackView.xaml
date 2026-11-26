@@ -1,0 +1,46 @@
+<UserControl x:Class="AstroNucleaus.Wpf.Views.NuclidePlaybackView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:AstroNucleaus.Wpf.ViewModels"
+             xmlns:controls="clr-namespace:AstroNucleaus.Wpf.Controls"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             d:DataContext="{d:DesignInstance Type=vm:NuclidePlaybackViewModel}">
+    <DockPanel>
+        <!-- Playback controls -->
+        <Grid DockPanel.Dock="Bottom" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{StaticResource PrimaryButton}" Tag="{Binding PlayGlyph}" Content="{Binding PlayText}"
+                    Command="{Binding TogglePlayCommand}" Width="110" AutomationProperties.Name="Play or pause" />
+            <Button Grid.Column="1" Style="{StaticResource IconButton}" Content="&#xE72C;" ToolTip="Play from the start"
+                    AutomationProperties.Name="Play from the start" Command="{Binding RestartCommand}" Height="36" Width="36" Margin="8,0,0,0" />
+            <Slider Grid.Column="2" Minimum="0" Maximum="1" Value="{Binding Progress}" Margin="14,0"
+                    VerticalAlignment="Center" IsEnabled="{Binding HasFrames}" AutomationProperties.Name="Playback position" />
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Duration" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                <ComboBox ItemsSource="{Binding SpeedOptions}" SelectedItem="{Binding PlaybackSeconds}" Width="80" ItemStringFormat="{}{0} s" />
+                <TextBlock Text="Pace" VerticalAlignment="Center" Margin="14,0,6,0" Foreground="{StaticResource TextSecondaryBrush}" />
+                <ComboBox ItemsSource="{Binding PaceOptions}" SelectedValuePath="Pace" SelectedValue="{Binding Pace}"
+                          DisplayMemberPath="Name" Width="235"
+                          ToolTip="What the playback advances uniformly: time, log of time (stretches fast early phases), or neutron exposure" />
+            </StackPanel>
+        </Grid>
+
+        <DockPanel DockPanel.Dock="Top" Margin="2,0,0,6">
+            <TextBlock DockPanel.Dock="Right" Text="{Binding TimeText}" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"
+                       VerticalAlignment="Center" />
+            <TextBlock Style="{StaticResource CardTitle}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+        </DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="{Binding StateText}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"
+                   TextWrapping="Wrap" Margin="2,0,0,4" />
+
+        <controls:NuclideChartPlot Cells="{Binding Cells}" ScaleTop="{Binding ScaleTop}" Decades="10"
+                                   ValueLabel="{Binding ValueLabel}" EmptyMessage="Run a calculation, then press Play" />
+    </DockPanel>
+</UserControl>

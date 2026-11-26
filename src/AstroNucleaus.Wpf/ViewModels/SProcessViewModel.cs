@@ -30,6 +30,41 @@ public partial class SProcessViewModel : ObservableObject
 
     public IReadOnlyList<int> MaxZOptions { get; } = [36, 38, 40, 42, 46, 50];
 
+    /// <summary>Animated chart of nuclides for the Path tab.</summary>
+    public NuclidePlaybackViewModel Playback { get; } = new();
+
+    partial void OnResultChanged(SProcessResult? value) => Playback.Load(value is null ? null : ToPlayback(value));
+
+    private static PlaybackData ToPlayback(SProcessResult r)
+    {
+        var nuclides = r.Abundances
+            .Select(a => new PlaybackNuclide(
+                a.Nuclide,
+                a.IsStable,
+                (a.IsStable ? "stable" : $"T½ = {PlaybackFormatting.Seconds(a.HalfLifeSeconds)}") + $"\nMACS = {a.CaptureBarns * 1000:0.###} mb"))
+            .ToList();
+
+        string Describe(int k, double f)
+        {
+            var h0 = r.History[k];
+            var h1 = r.History[k + 1];
+            double Lerp(double x, double y) => x + (y - x) * f;
+            return $"τ = {Lerp(h0.Exposure, h1.Exposure):0.0000} mb⁻¹ · n_n = {PlaybackFormatting.NeutronDensity(Lerp(h0.NeutronDensity, h1.NeutronDensity))} cm⁻³ · " +
+                   $"X(He) = {Lerp(h0.HeliumMassFraction, h1.HeliumMassFraction):0.000} · X(²²Ne) = {Lerp(h0.Ne22MassFraction, h1.Ne22MassFraction):0.0E+0}";
+        }
+
+        return new PlaybackData(
+            "Isotope abundances on the chart of nuclides",
+            "Y/Y₀(⁵⁶Fe)",
+            nuclides,
+            r.History.Select(h => h.TimeYears).ToList(),
+            r.HistoryAbundances,
+            r.History.Select(h => h.Exposure).ToList(),
+            Describe,
+            PlaybackFormatting.Years,
+            r.History.Count - 1);
+    }
+
     public ObservableCollection<NuclideAbundance> TableRows { get; } = [];
 
     [ObservableProperty]

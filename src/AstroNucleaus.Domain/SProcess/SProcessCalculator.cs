@@ -27,6 +27,9 @@ public sealed class SProcessCalculator
     /// <summary>Largest neutron exposure (mb⁻¹) in one time step; keeps σ·Δτ ≤ 0.1 for σ ≈ 500 mb.</summary>
     private const double MaxExposurePerStep = 2e-4;
 
+    /// <summary>A history frame is recorded at least every this much neutron exposure (mb⁻¹).</summary>
+    private const double ExposurePerFrame = 0.002;
+
     /// <summary>Nuclides with shorter half-lives are decayed for the "decayed" abundances.</summary>
     public const double DecayCutoffYears = 1e6;
 
@@ -73,6 +76,7 @@ public sealed class SProcessCalculator
         double time = 0, exposureCm2 = 0, peakDensity = 0, densityTimeIntegral = 0, lostMass = 0;
         var steps = 0;
         var history = new List<SProcessSnapshot> { new(0, heliumStart, initialNe22 * 22, 0, 0) };
+        var frames = new List<double[]> { Relative(y) };
         var nextRecord = duration / 400;
         var nextProgress = 0.0;
 
@@ -110,7 +114,9 @@ public sealed class SProcessCalculator
 
             SetAsh(heliumTotal - Helium(time));
 
-            if (time >= nextRecord || time >= duration * (1 - 1e-12))
+            // Record every 1/400 of the phase and every 0.002 mb⁻¹ of exposure, so short neutron bursts get frames too.
+            var exposure = exposureCm2 / CmMinus2PerInverseMillibarn;
+            if (time >= nextRecord || exposure - history[^1].Exposure >= ExposurePerFrame || time >= duration * (1 - 1e-12))
             {
                 history.Add(new SProcessSnapshot(
                     time / StellarCoreModel.SecondsPerYear,
@@ -118,6 +124,7 @@ public sealed class SProcessCalculator
                     poisons[StellarCoreModel.Ne22] * 22,
                     neutronDensity,
                     exposureCm2 / CmMinus2PerInverseMillibarn));
+                frames.Add(Relative(y));
                 nextRecord = time + duration / 400;
             }
 
@@ -172,7 +179,18 @@ public sealed class SProcessCalculator
             steps,
             history,
             abundances,
-            _data.Description);
+            _data.Description)
+        {
+            HistoryAbundances = frames,
+        };
+
+        double[] Relative(double[] values)
+        {
+            var frame = new double[values.Length];
+            for (var i = 0; i < values.Length; i++)
+                frame[i] = values[i] / initialFe;
+            return frame;
+        }
 
         double Helium(double t) => Math.Max(0.0, heliumStart * (1 - t / duration));
 

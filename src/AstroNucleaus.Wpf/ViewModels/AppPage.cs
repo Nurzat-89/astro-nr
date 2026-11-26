@@ -4,6 +4,7 @@ public enum AppPage
 {
     Browser,
     SProcess,
+    RProcess,
     Libraries,
     Materials,
     Settings,

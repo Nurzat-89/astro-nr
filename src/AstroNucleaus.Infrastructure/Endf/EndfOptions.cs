@@ -27,6 +27,19 @@ public sealed class EndfOptions
     /// </summary>
     public Uri MacsArchiveAddress { get; set; } = new("https://www.nndc.bnl.gov/astro/ENDFB71-EAF2010.zip");
 
+    /// <summary>
+    /// JINA REACLIB default library snapshot as distributed with pynucastro (GitHub, BSD-3-Clause). The REACLIB site
+    /// itself blocks automated downloads, so this copy is used for the "Download REACLIB" button.
+    /// </summary>
+    public Uri ReaclibDownloadAddress { get; set; } =
+        new("https://raw.githubusercontent.com/pynucastro/pynucastro/main/pynucastro/data/reaclib_default2_20250330");
+
+    /// <summary>AME2020 atomic mass evaluation (Wang et al., Chin. Phys. C 45, 030003 (2021)), IAEA AMDC.</summary>
+    public Uri Ame2020Address { get; set; } = new("https://www-nds.iaea.org/amdc/ame2020/mass_1.mas20.txt");
+
+    /// <summary>NUBASE2020 (Kondev et al., Chin. Phys. C 45, 030001 (2021)), IAEA AMDC: ground-state spins.</summary>
+    public Uri Nubase2020Address { get; set; } = new("https://www-nds.iaea.org/amdc/ame2020/nubase_4.mas20.txt");
+
     /// <summary>ENDF/B-VIII.0 radioactive decay sub-library (half-lives and decay modes).</summary>
     public Uri DecayArchiveAddress { get; set; } = new("https://www.nndc.bnl.gov/endf-b8.0/zips/ENDF-B-VIII.0_decay.zip");
 
